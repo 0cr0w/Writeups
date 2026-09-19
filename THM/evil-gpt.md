@@ -1,6 +1,4 @@
----
-title: "Evil-GPT"
----
+# Evil-GPT
 
 Evil-GPT is an easy level TryHackMe machine that focuses on LLM hacking.
 

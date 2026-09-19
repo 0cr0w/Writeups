@@ -1,5 +1,4 @@
----
-title: "HealthGPT"
+# HealthGPT
 ---
 
 HealthGPT is an easy diffulty TryHackMe room about hacking a safety-compliant AI assistant.

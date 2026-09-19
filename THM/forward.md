@@ -1,6 +1,4 @@
----
-title: "Forward"
----
+# Forward
 
 Forward is a challenge room in TryHackMe's "Jr Penetration Tester" pathway.
 The starting point is an assumed breach in an Active Directory environment.
@@ -16,14 +14,14 @@ We exploit this to perform a Resource-Based Constrained Delegation (RBCD) attack
 
 **Note:** All personally identifying information, like the IP-s of attacking machines of VM-s, are replaced with placeholders for privacy and all flags or passwords are redacted to not spoil the challenge.
 
-# Reconnaissance
+## Reconnaissance
 
 We're given the following credentials:
 
 - **Username**: `ctf.local\j.smith`
 - **Password**: `JSmith@IT2024`
 
-## Nmap
+### Nmap
 
 We nonetheless start with `nmap` to map the attack surface.
 
@@ -111,7 +109,7 @@ $ echo $(echo ${IP}) DC01.ctf.local ctf.local | sudo tee -a /etc/hosts
 The intended path is to gain a foothold via RDP with the provided credentials.
 We nonetheless check for other things as well just to rule them out.
 
-## SMB
+### SMB
 
 Our credentials provide access to the following shares:
 
@@ -192,7 +190,7 @@ $ smbmap -H $IP -u 'j.smith' -p 'JSmith@IT2024' -r --no-pass --no-banner
 [*] Closed 1 connections
 ```
 
-## AS-REP roasting, Kerberoasting and DCSync
+### AS-REP roasting, Kerberoasting and DCSync
 
 AS-REP roasting is a credential harvesting technique that exploits accounts that have Kerberos pre-authentication disabled.
 For such accounts, we could send an AS-REQ (Authentication Server Request) without providing any credentials and receive an AS-REP (Authentication Server Response).
@@ -246,7 +244,7 @@ Impacket v0.14.0 - Copyright Fortra, LLC and its affiliated companies
 [*] Cleaning up...
 ```
 
-# Lateral movement: j.smith > r.williams
+## Lateral movement: j.smith > r.williams
 
 We get a foothold via RDP with the provided credentials:
 
@@ -254,7 +252,7 @@ We get a foothold via RDP with the provided credentials:
 $ xfreerdp /u:'ctf.local\j.smith' /p:'JSmith@IT2024' /v:$IP /cert:ignore /clipboard /dynamic-resolution
 ```
 
-## Reconnaissance
+### Reconnaissance
 
 We launch PowerShell for enumeration.
 First we check our current privileges:
@@ -545,7 +543,7 @@ RDP         <TARGET-IP>   3389   DC01             [*] Windows 10 or Windows Serv
 RDP         <TARGET-IP>   3389   DC01             [+] ctf.local\r.williams:<REDACTED-PW> (Pwn3d!)
 ```
 
-## Lateral movement
+### Lateral movement
 
 Login via RDP with reused credentials:
 
@@ -553,9 +551,9 @@ Login via RDP with reused credentials:
 $ xfreerdp /u:r.williams /p:'<REDACTED-PW>' /v:$IP /cert:ignore /clipboard /dynamic-resolution
 ```
 
-# Privilege escalation: r.williams > administrator
+## Privilege escalation: r.williams > administrator
 
-## Reconnaissance
+### Reconnaissance
 
 Open PowerShell to check our current privileges:
 
@@ -631,7 +629,7 @@ The attack itself proceeds as [follows](https://hacktricks.wiki/en/windows-harde
         - S4U2Proxy: use the non-forwardable TGS to request a service ticket representing `Administrator` to `service-2`
 4. The attacker performs a pass-the-ticket attack and impersonates the `Administrator` to gain access to `service-2`.
 
-## Privilege Escalation
+### Privilege Escalation
 
 Since the requirements are met, let's perform the attack.
 First, create a computer account with an SPN that we control:
@@ -711,7 +709,7 @@ C:\Windows\system32> type C:\Users\Administrator\Desktop\flag.txt
 <REDACTED-FLAG>
 ```
 
-# Summary
+## Summary
 
 RBCD is dangerous because it exploits trust relationships between objects in an Active Directory environment.
 Instead of software vulnerabilities, it depends on a combination of misconfigurations, convenient defaults, human error and intended design features.

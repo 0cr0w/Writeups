@@ -1,6 +1,4 @@
----
-title: "Evil-GPT v2"
----
+# Evil-GPT v2
 
 Evil-GPT v2 is an easy TryHackMe room that focuses on LLM hacking.
 

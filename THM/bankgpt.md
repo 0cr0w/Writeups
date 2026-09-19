@@ -1,6 +1,4 @@
----
-title: "BankGPT"
----
+# BankGPT
 
 BankGPT is an easy level TryHackMe room about hacking a customer service assistant.
 

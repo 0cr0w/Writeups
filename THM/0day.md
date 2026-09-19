@@ -1,6 +1,4 @@
----
-title: "0day"
----
+# 0day
 
 0day is a medium difficulty TryHackMe machine.
 Enumeration reveals a `/backup` and a `/cgi-bin` directory.
@@ -14,9 +12,9 @@ Exploiting this lets us escalate our privileges to `root`.
 
 **Note:** Personally identifying information, like the IP-s of attacking machines of VM-s, are replaced with placeholders for privacy and all flags or passwords are redacted to not spoil the challenge.
 
-# Reconnaissance
+## Reconnaissance
 
-## Nmap
+### Nmap
 
 We start with an `nmap` scan to map the target's attack surface:
 
@@ -54,7 +52,7 @@ OS details: Linux 3.10 - 3.13
 Both Apache and OpenSSH are outdated.
 Indeed, Apache HTTP Server 2.4.7 was released back in [2013](https://lists.apache.org/thread/sg4hk3j975o0h5oxk58qmp5z13s4b0pg).
 
-## Nikto
+### Nikto
 
 Next, we scan the target with `nikto` for vulnerabilities:
 
@@ -96,7 +94,7 @@ Next, we scan the target with `nikto` for vulnerabilities:
 It also found `/cgi-bin/test.cgi` which appears vulnerable to ShellShock (CVE-2014-6271)
 Before confirming this finding, let's complete our initial enumeration.
 
-## Gobuster
+### Gobuster
 
 We also fuzz the server for files and directories with `gobuster`:
 
@@ -160,7 +158,7 @@ Progress: 32175 / 32998 (97.51%)================================================
 ===============================================================
 ```
 
-## Web server
+### Web server
 
 After a vulnerability scan and some fuzzing, we focus on the server and the site it's serving.
 First we fetch the server headers to learn more about the software stack:
@@ -216,7 +214,7 @@ In our experience, a terminal-based workflow suffices for enumerating simpler we
 Walking a site with Burp Suite becomes necessary for more complex sites or webapps that rely heavily on JavaScript or API-s.
 
 
-## The SSH rabbit hole
+### The SSH rabbit hole
 
 `/backup/` contains a private SSH key:
 
@@ -262,7 +260,7 @@ Session completed.
 A password is useless without a username.
 Testing against the target with `nxc` and some of the names we gathered from the website enumeration yields nothing.
 
-## CGI-bin
+### CGI-bin
 
 Common Gateway Interface (CGI) is a standard that lets servers communicate with external [programs](https://phoenixnap.com/kb/cgi-bin).
 These let servers process input from and return output through the web.
@@ -292,7 +290,7 @@ Let's test if it executes:
 Hello World!
 ```
 
-## ShellShock
+### ShellShock
 
 CGI maps http request headers into environment variables in the OS running the server and executing the script.
 ShellShock (CVE-2014-6271) exploits how Bash handles function definitions that are imported through environment [variables](https://www.cisa.gov/news-events/alerts/2014/09/25/gnu-bourne-again-shell-bash-shellshock-vulnerability-cve-2014-6271-cve-2014-7169-cve-2014-7186-cve).
@@ -335,7 +333,7 @@ MAC Address: 02:A0:1A:01:2D:4B (Unknown)
 Nmap done: 1 IP address (1 host up) scanned in 0.37 seconds
 ```
 
-# Foothold
+## Foothold
 
 We can gain a foothold by exploiting ShellShock and inserting a reverse shell payload into the `User-Agent` header of a GET request to `/cgi-bin/test.cgi`.
 
@@ -423,9 +421,9 @@ www-data@ubuntu:/usr/lib/cgi-bin$ cat /home/ryan/user.txt
 <REDACTED-USER-FLAG>
 ```
 
-# Privilege escalation: www-data > root
+## Privilege escalation: www-data > root
 
-## Reconnaissance
+### Reconnaissance
 
 `/home` contains a hidden file, `.secret`, which is a symbolic link to the root flag but we can't read it:
 
@@ -649,7 +647,7 @@ It performs a library injection by creating a `/etc/ld.so.preload` file - a syst
 }
 ```
 
-## Privilege escalation
+### Privilege escalation
 
 Get the exploit source code from `searchsploit`:
 
@@ -747,7 +745,7 @@ lrwxrwxrwx  1 root root    9 Sep  2  2020 .bash_history -> /dev/null
 <REDACTED-ROOT-FLAG>
 ```
 
-# Summary
+## Summary
 
 ShellShock is a high severity vulnerability (CVSSv3 score of 9.8) that provides attackers with remote code execution (RCE) on the system.
 

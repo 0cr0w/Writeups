@@ -1,6 +1,4 @@
----
-title: "Sequence"
----
+# Sequence
 
 Sequence is a medium difficulty TryHackMe machine.
 Rooting it involves chaining together a blind cross-site scripting (XSS) vulnerability, a cross site request forgery (CSRF), a file upload vulnerability and a docker escape.
@@ -13,9 +11,9 @@ This room comes with a story:
 off on vacation. He claims that the secret information of the financiers is fully protected.
 > But are his defenses truly airtight? Your challenge is to exploit the vulnerabilities and gain complete control of the system.
 
-# Reconnaissance
+## Reconnaissance
 
-## Nmap
+### Nmap
 
 We start with an `nmap` scan to map the attack surface:
 
@@ -64,7 +62,7 @@ This makes XSS and other client-side attacks easier, per [PortSwigger](https://p
 > If the HttpOnly attribute is set on a cookie, then the cookie's value cannot be read or set by client-side JavaScript.
 > This measure makes certain client-side attacks, such as cross-site scripting, slightly harder to exploit by preventing them from trivially capturing the cookie's value via an injected script.
 
-## Gobuster
+### Gobuster
 
 We continue mapping the attack surface by fuzzing for files and directories on the server:
 
@@ -124,7 +122,7 @@ While the results garbled, we find the following interesting directories:
 
 Before exploring them further, we turn to the website itself for further enumeration.
 
-## Web server
+### Web server
 
 A verbose get request with `curl` shows a shop website that's likely running on a LAMP (Linux, Apache, MySQL, PHP) stack as revealed by the server headers and other information gathered so far:
 
@@ -382,7 +380,7 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 <TARGET-IP> - - [17/Jan/2026 06:38:04] "GET /pwn.js HTTP/1.1" 404 -
 ```
 
-# Cookie hijacking
+## Cookie hijacking
 
 **Cookie hijacking** involves stealing a user's cookie to impersonate them and to gain unauthorized access to their account or take over their session.
 
@@ -427,7 +425,7 @@ ID Username Role
 3  mod      mod
 ```
 
-# CSRF
+## CSRF
 
 Checking the HTML source of `/dashboard.php`, we find more interesting pages - `chat.php`, `admin_view.php`, `setting.php`:
 
@@ -867,7 +865,7 @@ Logout View Feedback Open Chat Settings
 [One of: -- Select Feature --/Lottery Feature]
 ```
 
-# Foothold
+## Foothold
 
 Our next step is to gain a foothold on the server.
 HTML source shows that the new select feature function on `dashboard.php` involves a POST request to `/dashboard.php` with a `feature` parameter:
@@ -1187,7 +1185,7 @@ drwxr-xr-x   1 root root 4.0K May 20  2025 usr
 drwxr-xr-x   1 root root 4.0K May 21  2025 var
 ```
 
-# Privilege escalation: container escape
+## Privilege escalation: container escape
 
 "[Docker](https://hacktricks.wiki/en/network-services-pentesting/2375-pentesting-docker.html) is a platform for building, distributing, and running applications in containers."
 Containers isolate the application from the host OS and its filesystem to an extent.
@@ -1269,7 +1267,7 @@ drwx------  3 root root 4.0K Feb  2  2024 '~'
 For persistence, we could generate ssh keys and insert our public key into `/root/.ssh/authorized_keys` to get it onto the host filesystem.
 However, this CTF has taken long enough.
 
-# Summary
+## Summary
 
 Some [steps](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) for mitigating the blind XSS vulnerability:
 
